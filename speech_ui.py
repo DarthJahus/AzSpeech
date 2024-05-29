@@ -63,9 +63,11 @@ class Ui_MainWindow(object):
         self.lblVoice.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.lblVoice.setObjectName("lblVoice")
         self.btnRec = QtWidgets.QPushButton(parent=self.centralwidget)
+        self.btnRec.setEnabled(False)
         self.btnRec.setGeometry(QtCore.QRect(510, 310, 121, 51))
         self.btnRec.setObjectName("btnRec")
         self.btnReadAloud = QtWidgets.QPushButton(parent=self.centralwidget)
+        self.btnReadAloud.setEnabled(False)
         self.btnReadAloud.setGeometry(QtCore.QRect(510, 370, 121, 61))
         self.btnReadAloud.setObjectName("btnReadAloud")
         self.btnSaveSettings = QtWidgets.QPushButton(parent=self.centralwidget)
@@ -83,6 +85,12 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        MainWindow.setTabOrder(self.txtMain, self.btnReadAloud)
+        MainWindow.setTabOrder(self.btnReadAloud, self.btnRec)
+        MainWindow.setTabOrder(self.btnRec, self.txtKey)
+        MainWindow.setTabOrder(self.txtKey, self.cmbRegion)
+        MainWindow.setTabOrder(self.cmbRegion, self.cmbVoice)
+        MainWindow.setTabOrder(self.cmbVoice, self.btnSaveSettings)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

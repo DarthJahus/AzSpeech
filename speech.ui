@@ -155,6 +155,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="btnRec">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -168,6 +171,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="btnReadAloud">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>510</x>
@@ -209,6 +215,15 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
+ <tabstops>
+  <tabstop>txtMain</tabstop>
+  <tabstop>btnReadAloud</tabstop>
+  <tabstop>btnRec</tabstop>
+  <tabstop>txtKey</tabstop>
+  <tabstop>cmbRegion</tabstop>
+  <tabstop>cmbVoice</tabstop>
+  <tabstop>btnSaveSettings</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
