@@ -12,7 +12,7 @@ speech_config = SpeechConfig(
     subscription=__config['SPEECH_KEY'],
     region=__config['SPEECH_REGION']
 )
-speech_config.speech_synthesis_voice_name = 'en-US-AvaMultilingualNeural'
+speech_config.speech_synthesis_voice_name = __config['SPEECH_VOICE']
 
 audio_config = audio.AudioOutputConfig(
     use_default_speaker=not (__config["OUT_FILE"]),
@@ -28,7 +28,6 @@ if __name__ == "__main__":
     _speech = speech_synthesizer.speak_text_async(clipboard.paste().strip()).get()
     if _speech.reason == ResultReason.SynthesizingAudioCompleted:
         print("Speech synthesized.")
-        Beep(440, 500)
         exit(0)
     elif _speech.reason == ResultReason.Canceled:
         print("Speech synthesis canceled: {}".format(_speech.cancellation_details.reason))
