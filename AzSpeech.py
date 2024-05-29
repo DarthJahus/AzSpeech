@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from speech_ui import Ui_MainWindow
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QStatusBar, QFileDialog
@@ -20,7 +20,7 @@ def load_files():
     except:
         print("Error reading config file. Make sure config.json is at ./")
     try:
-        with open(".res/azure.json", 'r', encoding="utf-8") as _f:
+        with open(os.path.join(os.path.dirname(__file__), ".res/azure.json"), 'r', encoding="utf-8") as _f:
             __azure = json.loads(_f.read())
     except:
         print("Error reading Azure file. Make sure azure.json is at ./.res/")
@@ -63,7 +63,7 @@ class GUI(QMainWindow):
         self.ui.setupUi(self)
         # set title, icon and size
         self.setWindowTitle("Text-to-Speech from Azure")
-        self.setWindowIcon(QIcon("./.res/icon.png"))
+        self.setWindowIcon(QIcon(os.path.join(os.path.dirname(__file__), ".res/icon.ico")))
         # set button actions
         self.statusBar().showMessage("Loading...")
         self.init_settings()
