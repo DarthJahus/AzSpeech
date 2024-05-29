@@ -16,7 +16,7 @@ speech_config.speech_synthesis_voice_name = 'en-US-AvaMultilingualNeural'
 
 audio_config = audio.AudioOutputConfig(
     use_default_speaker=not (__config["OUT_FILE"]),
-    filename="out.wav" if not __config["OUT_FILE"] else __config["OUT_FILE"]
+    filename=None if not __config["OUT_FILE"] else __config["OUT_FILE"]
 )
 speech_synthesizer = SpeechSynthesizer(
     speech_config=speech_config,
