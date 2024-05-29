@@ -74,6 +74,9 @@ class Ui_MainWindow(object):
         self.btnSaveSettings.setEnabled(False)
         self.btnSaveSettings.setGeometry(QtCore.QRect(440, 310, 61, 121))
         self.btnSaveSettings.setObjectName("btnSaveSettings")
+        self.btnStop = QtWidgets.QPushButton(parent=self.centralwidget)
+        self.btnStop.setGeometry(QtCore.QRect(510, 310, 121, 121))
+        self.btnStop.setObjectName("btnStop")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(parent=MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 640, 22))
@@ -102,6 +105,7 @@ class Ui_MainWindow(object):
         self.btnRec.setText(_translate("MainWindow", "REC FILE"))
         self.btnReadAloud.setText(_translate("MainWindow", "READ ALOUD"))
         self.btnSaveSettings.setText(_translate("MainWindow", "SAVE"))
+        self.btnStop.setText(_translate("MainWindow", "STOP"))
 
 
 if __name__ == "__main__":

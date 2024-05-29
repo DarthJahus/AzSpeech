@@ -75,8 +75,10 @@ class GUI(QMainWindow):
         self.ui.txtMain.textChanged.connect(self.txtMain_changed)
         self.ui.cmbVoice.currentIndexChanged.connect(self.cmbVoice_changed)
         self.ui.btnRec.clicked.connect(self.btnRec_clicked)
+        self.ui.btnStop.clicked.connect(self.btnStop_clicked)
 
     def init_settings(self):
+        self.ui.btnStop.setVisible(False)
         load_files()
         self.can_read(False)
         # populate regions and voices
@@ -99,28 +101,38 @@ class GUI(QMainWindow):
             open(_file_name[0], 'w')
         except:
             _file_name = ("rec.wav", "*.wav")
-        if speech(
+        speech(
             key=self.ui.txtKey.text().strip(),
             region=self.ui.cmbRegion.currentData(),
             voice=self.ui.cmbVoice.currentData(),
             text=self.ui.txtMain.toPlainText().strip(),
             callback=self.statusBar(),
             file=_file_name[0]
-        ):
-            if self.settings_changed():
-                self.ui.btnSaveSettings.setEnabled(True)
+        )
         self.can_read(False)
 
+    def set_reading(self, value: bool, status, success: bool = None):
+        self.ui.btnStop.setVisible(value)
+        self.ui.btnRec.setVisible(not value)
+        self.ui.btnReadAloud.setVisible(not value)
+        self.statusBar().showMessage(status)
+        self.ui.txtKey.setEnabled(not value)
+        self.ui.cmbRegion.setEnabled(not value)
+        self.ui.cmbVoice.setEnabled(not value)
+        self.ui.txtMain.setEnabled(not value)
+        if not value:
+            if success:
+                if self.settings_changed():
+                    self.ui.btnSaveSettings.setEnabled(True)
+
     def btnReadAloud_clicked(self):
-        if speech(
+        speech(
             key=self.ui.txtKey.text().strip(),
             region=self.ui.cmbRegion.currentData(),
             voice=self.ui.cmbVoice.currentData(),
             text=self.ui.txtMain.toPlainText().strip(),
-            callback=self.statusBar()
-        ):
-            if self.settings_changed():
-                self.ui.btnSaveSettings.setEnabled(True)
+            callback=self.set_reading
+        )
         self.can_read(False)
 
     def btnSave_clicked(self):
@@ -130,7 +142,6 @@ class GUI(QMainWindow):
             set_config("SPEECH_VOICE", self.ui.cmbVoice.currentData())
             if save_config():
                 self.settings_changed(False)
-                self.ui.btnSaveSettings.setEnabled(False)
 
     def txtKey_changed(self):
         self.ui.lblKey.setStyleSheet("color: red;")
@@ -148,9 +159,9 @@ class GUI(QMainWindow):
         self.validate_read()
 
     def settings_changed(self, changed: bool = None):
+        self.ui.btnSaveSettings.setEnabled(False)
         if changed is None:
             return self.windowTitle()[0] == '*'  # ToDo: Use a variable for this instead of checking for the Asterix
-
         if changed:
             if self.windowTitle()[0] != '*':
                 self.setWindowTitle('*' + self.windowTitle())
@@ -182,22 +193,46 @@ class GUI(QMainWindow):
             if self.validate_settings():
                 self.can_read(True)
 
+    def btnStop_clicked(self):
+        stop_speech()
+
 
 _app = QApplication([])
 _window = GUI()
 _window.show()
 
 
+class SpeechThread(Thread):
+    def __init__(self, speech_synthesizer, text, callback):
+        super().__init__()
+        self.speech_synthesizer = speech_synthesizer
+        self.text = text
+        self.callback = callback
+        self.stopped = False
+
+    def run(self):
+        _speech = self.speech_synthesizer.speak_text_async(self.text).get()
+        if _speech.reason == ResultReason.SynthesizingAudioCompleted:
+            self.callback(False, "Speech synthesis completed." if not self.stopped else "Speech stopped!", success=True)
+        elif _speech.reason == ResultReason.Canceled:
+            self.callback(False, "Speech synthesis canceled: {}".format(_speech.cancellation_details.reason))
+            if _speech.cancellation_details.reason == CancellationReason.Error:
+                if _speech.cancellation_details.error_details:
+                    self.callback(False, "Error: {}".format(_speech.cancellation_details.error_details), success=False)
+
 # ToDo: Read through another function and always save file to disk
 # Todo: Show how much characters are left in Azure plan?
 
-def speech(key, region, voice, text, callback: QStatusBar, file=None):
+
+def speech(key, region, voice, text, callback, file=None):
+    global __speech_thread
+
     speech_config = SpeechConfig(
         subscription=key,
         region=region
     )
     speech_config.speech_synthesis_voice_name = voice
-    callback.showMessage("Reading...")
+    callback(True, "Reading...", False)
     audio_config = audio.AudioOutputConfig(
         use_default_speaker=not file,  # ToDo: allow choice of device
         filename=None if not file else file  # ToDo: Ask for filename
@@ -218,6 +253,13 @@ def speech(key, region, voice, text, callback: QStatusBar, file=None):
                 callback.showMessage("Error details: {}".format(_speech.cancellation_details.error_details))
         Beep(880, 500)
         return False
+    __speech_thread = SpeechThread(speech_synthesizer, text, callback)
+    __speech_thread.start()
 
+
+def stop_speech():
+    global __speech_thread
+    __speech_thread.stop()
+    __speech_thread.join()
 
 sys.exit(_app.exec())
