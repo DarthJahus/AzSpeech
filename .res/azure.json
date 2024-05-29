@@ -1,0 +1,78 @@
+{
+  "voices": [
+    {
+      "voiceCode": "en-US-AndrewMultilingualNeural",
+      "voiceName": "Andrew",
+      "voiceSex": "Male"
+    },
+    {
+      "voiceCode": "en-US-AvaMultilingualNeural",
+      "voiceName": "Ava",
+      "voiceSex": "Female"
+    },
+    {
+      "voiceCode": "en-US-BrianMultilingualNeural",
+      "voiceName": "Brian",
+      "voiceSex": "Male"
+    },
+    {
+      "voiceCode": "en-US-EmmaMultilingualNeural",
+      "voiceName": "Emma",
+      "voiceSex": "Female"
+    },
+    {
+      "voiceCode": "de-DE-SeraphinaMultilingualNeural",
+      "voiceName": "Seraphina",
+      "voiceSex": "Female"
+    },
+    {
+      "voiceCode": "de-DE-FlorianMultilingualNeural",
+      "voiceName": "Florian",
+      "voiceSex": "Male"
+    },
+    {
+      "voiceCode": "fr-FR-VivienneMultilingualNeural",
+      "voiceName": "Vivienne",
+      "voiceSex": "Female"
+    },
+    {
+      "voiceCode": "fr-FR-RemyMultilingualNeural",
+      "voiceName": "Remy",
+      "voiceSex": "Male"
+    },
+    {
+      "voiceCode": "ja-JP-MasaruMultilingualNeural",
+      "voiceName": "Masaru",
+      "voiceSex": "Male"
+    },
+    {
+      "voiceCode": "zh-CN-XiaoxiaoMultilingualNeural",
+      "voiceName": "Xiaoxiao",
+      "voiceSex": "Female"
+    },
+    {
+      "voiceCode": "zh-CN-XiaochenMultilingualNeural",
+      "voiceName": "Xiaochen",
+      "voiceSex": "Female"
+    },
+    {
+      "voiceCode": "zh-CN-YunyiMultilingualNeural",
+      "voiceName": "Yunyi",
+      "voiceSex": "Male"
+    }
+  ],
+  "regions": [
+    {
+      "regionCode": "eastus",
+      "regionName": "US / East"
+    },
+    {
+      "regionCode": "westeurope",
+      "regionName": "EU / West"
+    },
+    {
+      "regionCode": "southeastasia",
+      "regionName": "Asia / South East"
+    }
+  ]
+}
