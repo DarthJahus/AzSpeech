@@ -1,12 +1,11 @@
-import sys, os
+from sys import exit as sys_exit
 from speech_ui import Ui_MainWindow
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QMainWindow, QStatusBar, QFileDialog
 from azure.cognitiveservices.speech import SpeechConfig, audio, SpeechSynthesizer, ResultReason, CancellationReason
-import json
-from winsound import Beep
-from os.path import expanduser
-from threading import Thread, Event
+from json import loads as j_loads, dumps as j_dumps
+from os.path import expanduser, dirname, join as path_join
+from threading import Thread
 
 
 __config = dict()
@@ -18,22 +17,21 @@ def load_files():
     global __config, __azure
     try:
         with open("config.json", 'r', encoding="utf-8") as _f:
-            __config = json.loads(_f.read())
+            __config = j_loads(_f.read())
     except:
         print("Error reading config file. Make sure config.json is at ./")
     try:
-        with open(os.path.join(os.path.dirname(__file__), ".res/azure.json"), 'r', encoding="utf-8") as _f:
-            __azure = json.loads(_f.read())
+        with open(path_join(dirname(__file__), ".res/azure.json"), 'r', encoding="utf-8") as _f:
+            __azure = j_loads(_f.read())
     except:
-        print("Error reading Azure file. Make sure azure.json is at ./.res/")
-        exit(1)
+        raise FileNotFoundError(f"Error reading Azure file. Make sure azure.json is at {dirname(__file__)}/.res/")
 
 
 def save_config():
     global __config
     with open("config.json", 'w', encoding="utf-8") as _f:
         try:
-            _f.write(json.dumps(__config, indent="  "))
+            _f.write(j_dumps(__config, indent="  "))
             return True
         except:
             return False
@@ -41,7 +39,6 @@ def save_config():
 
 def set_config(element, new_value):
     global __config
-    # ToDo: Validity check?
     __config[element] = new_value
 
 
@@ -63,13 +60,14 @@ class GUI(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        # set title, icon and size
+        # Loading...
         self.setWindowTitle("Text-to-Speech from Azure")
-        self.setWindowIcon(QIcon(os.path.join(os.path.dirname(__file__), ".res/icon.ico")))
-        # set button actions
+        self.setWindowIcon(QIcon(path_join(dirname(__file__), ".res/icon.ico")))
         self.statusBar().showMessage("Loading...")
         self.init_settings()
         self.statusBar().showMessage("Ready.")
+        self.b_settings_changed = False
+        # set button actions
         self.ui.btnReadAloud.clicked.connect(self.btnReadAloud_clicked)
         self.ui.txtKey.textChanged.connect(self.txtKey_changed)
         self.ui.btnSaveSettings.clicked.connect(self.btnSave_clicked)
@@ -138,7 +136,7 @@ class GUI(QMainWindow):
         self.can_read(False)
 
     def btnSave_clicked(self):
-        if self.validate_settings():
+        if self.pre_validate_settings():
             set_config("SPEECH_KEY", self.ui.txtKey.text().strip())
             set_config("SPEECH_REGION", self.ui.cmbRegion.currentData())
             set_config("SPEECH_VOICE", self.ui.cmbVoice.currentData())
@@ -163,16 +161,18 @@ class GUI(QMainWindow):
     def settings_changed(self, changed: bool = None):
         self.ui.btnSaveSettings.setEnabled(False)
         if changed is None:
-            return self.windowTitle()[0] == '*'  # ToDo: Use a variable for this instead of checking for the Asterix
+            return self.b_settings_changed
         if changed:
             if self.windowTitle()[0] != '*':
                 self.setWindowTitle('*' + self.windowTitle())
+            self.b_settings_changed = True
         else:
             if self.windowTitle()[0] == '*':
                 self.setWindowTitle(self.windowTitle()[1:])
             self.ui.lblKey.setStyleSheet("color: black;")
             self.ui.lblRegion.setStyleSheet("color: black;")
             self.ui.lblVoice.setStyleSheet("color: black;")
+            self.b_settings_changed = False
 
     def txtMain_changed(self):
         self.validate_read()
@@ -184,7 +184,7 @@ class GUI(QMainWindow):
             self.ui.btnReadAloud.setEnabled(value)
             self.ui.btnRec.setEnabled(value)
 
-    def validate_settings(self):
+    def pre_validate_settings(self):
         if self.ui.txtKey.text().strip() and self.ui.cmbRegion.currentData() and self.ui.cmbVoice.currentData():
             if len(self.ui.txtMain.toPlainText().strip()) != 0:
                 return True
@@ -192,7 +192,7 @@ class GUI(QMainWindow):
 
     def validate_read(self):
         if not self.can_read():
-            if self.validate_settings():
+            if self.pre_validate_settings():
                 self.can_read(True)
 
     def btnStop_clicked(self):
@@ -253,4 +253,5 @@ def stop_speech():
     __speech_thread.stop()
     __speech_thread.join()
 
-sys.exit(_app.exec())
+
+sys_exit(_app.exec())
