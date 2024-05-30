@@ -11,7 +11,7 @@ from threading import Thread, Event
 
 __config = dict()
 __azure = dict()
-__speech_thread = None
+__speech_thread = Thread()
 
 
 def load_files():
@@ -222,8 +222,9 @@ class SpeechThread(Thread):
                 if _speech.cancellation_details.error_details:
                     self.callback(False, "Error: {}".format(_speech.cancellation_details.error_details), success=False)
 
-# ToDo: Read through another function and always save file to disk
-# Todo: Show how much characters are left in Azure plan?
+    def stop(self):
+        self.stopped = True
+        self.speech_synthesizer.stop_speaking_async()
 
 
 def speech(key, region, voice, text, callback, file=None):
@@ -243,7 +244,6 @@ def speech(key, region, voice, text, callback, file=None):
         speech_config=speech_config,
         audio_config=audio_config
     )
-
     __speech_thread = SpeechThread(speech_synthesizer, text, callback)
     __speech_thread.start()
 
